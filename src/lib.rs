@@ -2,7 +2,6 @@
 #![recursion_limit = "256"]
 // I hate this lint.
 #![allow(unused_parens)]
-
 // The builtin tests don't cover the CLI and so forth, and it's just
 // too darn annoying to try and make them do so.
 //
@@ -16,14 +15,14 @@ extern crate diff;
 extern crate ena;
 extern crate itertools;
 extern crate petgraph;
-extern crate regex_syntax;
 extern crate regex;
+extern crate regex_syntax;
 extern crate string_cache;
 extern crate term;
 extern crate tiny_keccak;
 extern crate unicode_xid;
 
-#[cfg_attr(feature = "test", macro_use)]
+#[macro_use]
 extern crate lalrpop_util;
 
 #[cfg(test)]
@@ -35,16 +34,10 @@ mod rust;
 #[macro_use]
 mod log;
 
-mod api;
-mod build;
 mod collections;
 mod file_text;
 mod grammar;
 mod kernel_set;
-mod lexer;
-mod lr1;
-mod message;
-mod normalize;
 mod parser;
 mod session;
 mod tls;
@@ -56,7 +49,4 @@ mod generate;
 #[cfg(test)]
 mod test_util;
 
-pub use crate::api::process_root;
-pub use crate::api::process_root_unconditionally;
-pub use crate::api::Configuration;
 use ascii_canvas::style;

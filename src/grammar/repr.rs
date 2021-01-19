@@ -5,10 +5,9 @@
 use crate::collections::{map, Map};
 use crate::grammar::free_variables::FreeVariables;
 use crate::grammar::pattern::Pattern;
-use crate::message::Content;
+use crate::util::Sep;
 use std::fmt::{Debug, Display, Error, Formatter};
 use string_cache::DefaultAtom as Atom;
-use crate::util::Sep;
 
 // These concepts we re-use wholesale
 pub use crate::grammar::parse_tree::{
@@ -625,15 +624,6 @@ impl Display for Symbol {
 impl Debug for Symbol {
     fn fmt(&self, fmt: &mut Formatter) -> Result<(), Error> {
         Display::fmt(self, fmt)
-    }
-}
-
-impl Into<Box<dyn Content>> for Symbol {
-    fn into(self) -> Box<dyn Content> {
-        match self {
-            Symbol::Nonterminal(nt) => nt.into(),
-            Symbol::Terminal(term) => term.into(),
-        }
     }
 }
 

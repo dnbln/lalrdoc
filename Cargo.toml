@@ -1,10 +1,10 @@
 [package]
-name = "lalrpop"
-version = "0.19.4" # LALRPOP
-description = "convenient LR(1) parser generator"
+name = "lalrdoc"
+version = "0.1.0"
+description = "Generate syntax references from lalrpop grammars"
 repository = "https://github.com/dblanovschi/lalrdoc"
 license = "Apache-2.0/MIT"
-authors = ["Niko Matsakis <niko@alum.mit.edu>"]
+authors = ["Dinu Blanovschi <dinu.blanovschi@criptext.com>"]
 
 exclude = ["build.rs"]
 
@@ -35,7 +35,10 @@ pico-args = { version = "0.3.4", default_features = false, optional = true }
 rand = "0.7"
 
 [dependencies.lalrpop-util]
-version = "0.19.4" # LALRPOP
+version = "0.19" # LALRPOP
+
+[build-dependencies]
+lalrpop = "0.19" # LALRPOP
 
 [features]
 default=["lexer", "pico-args"]

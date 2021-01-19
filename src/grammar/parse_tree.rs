@@ -4,9 +4,6 @@
 use crate::grammar::consts::{INPUT_LIFETIME, LALR, RECURSIVE_ASCENT, TABLE_DRIVEN, TEST_ALL};
 use crate::grammar::pattern::Pattern;
 use crate::grammar::repr::{self as r, NominalTypeRepr, TypeRepr};
-use crate::lexer::dfa::DFA;
-use crate::message::builder::InlineBuilder;
-use crate::message::Content;
 use crate::tls::Tls;
 use crate::util::Sep;
 use std::fmt::{Debug, Display, Error, Formatter};
@@ -27,21 +24,6 @@ pub struct Grammar {
 
 #[derive(Copy, Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Span(pub usize, pub usize);
-
-impl Into<Box<dyn Content>> for Span {
-    fn into(self) -> Box<dyn Content> {
-        let file_text = Tls::file_text();
-        let string = file_text.span_str(self);
-
-        // Insert an Adjacent block to prevent wrapping inside this
-        // string:
-        InlineBuilder::new()
-            .begin_adjacent()
-            .text(string)
-            .end()
-            .end()
-    }
-}
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum GrammarItem {
@@ -141,7 +123,6 @@ pub struct InternToken {
     /// Set of `r"foo"` and `"foo"` literals extracted from the
     /// grammar. Sorted by order of increasing precedence.
     pub match_entries: Vec<MatchEntry>,
-    pub dfa: DFA,
 }
 
 /// In `token_check`, as we prepare to generate a tokenizer, we
@@ -382,6 +363,7 @@ impl Visibility {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct NonterminalData {
+    pub doc_comments: Vec<String>,
     pub visibility: Visibility,
     pub name: NonterminalString,
     pub annotations: Vec<Annotation>,
@@ -409,6 +391,8 @@ pub struct Alternative {
 
     // => { code }
     pub action: Option<ActionKind>,
+
+    pub doc_comments: Vec<String>,
 
     pub annotations: Vec<Annotation>,
 }
@@ -549,17 +533,6 @@ impl NonterminalString {
     }
 }
 
-impl Into<Box<dyn Content>> for NonterminalString {
-    fn into(self) -> Box<dyn Content> {
-        let session = Tls::session();
-
-        InlineBuilder::new()
-            .text(self)
-            .styled(session.nonterminal_symbol)
-            .end()
-    }
-}
-
 #[derive(Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Lifetime(pub Atom);
 
@@ -616,16 +589,6 @@ impl TerminalString {
 
     pub fn regex(i: Atom) -> TerminalString {
         TerminalString::Literal(TerminalLiteral::Regex(i))
-    }
-}
-
-impl Into<Box<dyn Content>> for TerminalString {
-    fn into(self) -> Box<dyn Content> {
-        let session = Tls::session();
-        InlineBuilder::new()
-            .text(self)
-            .styled(session.terminal_symbol)
-            .end()
     }
 }
 

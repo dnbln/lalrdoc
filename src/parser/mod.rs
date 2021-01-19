@@ -5,15 +5,10 @@ use crate::grammar::pattern::*;
 use lalrpop_util;
 use crate::tok;
 
-#[cfg(not(feature = "test"))]
-#[allow(dead_code)]
-mod lrgrammar;
-
-#[cfg(feature = "test")]
 lalrpop_mod!(
     #[allow(dead_code)]
     lrgrammar,
-    "/src/parser/lrgrammar.rs"
+    "/parser/lrgrammar.rs"
 );
 
 #[cfg(test)]

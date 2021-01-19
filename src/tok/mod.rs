@@ -6,6 +6,7 @@ use unicode_xid::UnicodeXID;
 
 use self::ErrorCode::*;
 use self::Tok::*;
+use std::ops::Index;
 
 #[cfg(test)]
 mod test;
@@ -98,6 +99,8 @@ pub enum Tok<'input> {
     Underscore,
     Bang,
     ShebangAttribute(&'input str), // #![...]
+    InnerDocComment(&'input str),
+    OuterDocComment(&'input str),
 
     // Dummy tokens for parser sharing
     StartGrammar,
@@ -348,8 +351,18 @@ impl<'input> Tokenizer<'input> {
                 }
                 Some((idx0, '/')) => match self.bump() {
                     Some((_, '/')) => {
-                        self.take_until(|c| c == '\n');
-                        continue;
+                        let idx = self.take_until(|c| c == '\n');
+                        if let Some(idx) = idx {
+                            let comment = &self.text[idx0..idx];
+                            let tok = match comment.chars().nth(2) {
+                                Some('/') => Tok::OuterDocComment(comment),
+                                Some('!') => Tok::InnerDocComment(comment),
+                                _ => continue,
+                            };
+                            Some(Ok((idx0, tok, idx)))
+                        } else {
+                            continue;
+                        }
                     }
                     _ => Some(error(UnrecognizedToken, idx0)),
                 },

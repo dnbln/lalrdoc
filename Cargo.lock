@@ -204,8 +204,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "lalrdoc"
+version = "0.1.0"
+dependencies = [
+ "ascii-canvas",
+ "atty",
+ "bit-set",
+ "diff",
+ "ena",
+ "itertools",
+ "lalrpop",
+ "lalrpop-util",
+ "petgraph",
+ "pico-args",
+ "rand",
+ "regex",
+ "regex-syntax",
+ "string_cache",
+ "term",
+ "tiny-keccak",
+ "unicode-xid",
+]
+
+[[package]]
 name = "lalrpop"
 version = "0.19.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4a71d75b267b3299da9ccff4dd80d73325b5d8adcd76fe97cf92725eb7c6f122"
 dependencies = [
  "ascii-canvas",
  "atty",
@@ -216,7 +241,6 @@ dependencies = [
  "lalrpop-util",
  "petgraph",
  "pico-args",
- "rand",
  "regex",
  "regex-syntax",
  "string_cache",
