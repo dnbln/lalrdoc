@@ -25,6 +25,12 @@ extern crate unicode_xid;
 #[macro_use]
 extern crate lalrpop_util;
 
+#[macro_use]
+extern crate thiserror;
+
+#[macro_use]
+extern crate clap;
+
 #[cfg(test)]
 extern crate rand;
 
@@ -34,11 +40,13 @@ mod rust;
 #[macro_use]
 mod log;
 
+pub mod cli;
 mod collections;
 mod file_text;
 mod grammar;
 mod kernel_set;
 mod parser;
+pub mod reference_builder;
 mod session;
 mod tls;
 mod tok;

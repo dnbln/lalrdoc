@@ -1,11 +1,12 @@
+extern crate clap;
 extern crate lalrdoc;
 extern crate pico_args;
 
-use std::io::Write;
-use std::path::PathBuf;
-use std::process;
-use std::str::FromStr;
+use clap::Clap;
+use lalrdoc::cli::Cli;
 
-use pico_args::Arguments;
+fn main() -> Result<(), lalrdoc::reference_builder::LalrdocError> {
+    let cli: Cli = lalrdoc::cli::Cli::parse();
 
-fn main() {}
+    lalrdoc::cli::run(cli)
+}
