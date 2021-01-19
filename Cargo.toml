@@ -1,0 +1,45 @@
+[package]
+name = "lalrpop"
+version = "0.19.4" # LALRPOP
+description = "convenient LR(1) parser generator"
+repository = "https://github.com/dblanovschi/lalrdoc"
+license = "Apache-2.0/MIT"
+authors = ["Niko Matsakis <niko@alum.mit.edu>"]
+
+exclude = ["build.rs"]
+
+[lib]
+doctest = false
+
+[dependencies]
+ascii-canvas = { version = "2.0", default_features = false }
+atty = { version = "0.2", default_features = false }
+bit-set = { version = "0.5.2", default_features = false }
+diff = { version = "0.1.12", default_features = false }
+ena = { version = "0.14", default_features = false }
+itertools = { version = "0.9", default_features = false, features = ["use_std"] }
+petgraph = { version = "0.5", default_features = false }
+regex = { version = "1", default_features = false, features = ["std"] }
+regex-syntax = { version = "0.6", default_features = false }
+string_cache = { version = "0.8", default_features = false }
+term = { version = "0.5", default_features = false }
+tiny-keccak = { version = "2.0.2", features = ["sha3"] }
+unicode-xid = { version = "0.2", default_features = false }
+
+# This dependency is only needed for binary builds, if you use LALRPOP as
+# library, disable it in your project by setting default_features = false.
+pico-args = { version = "0.3.4", default_features = false, optional = true }
+
+
+[dev-dependencies]
+rand = "0.7"
+
+[dependencies.lalrpop-util]
+version = "0.19.4" # LALRPOP
+
+[features]
+default=["lexer", "pico-args"]
+lexer = ["lalrpop-util/lexer"]
+
+[package.metadata.docs.rs]
+features = ["lexer"]
