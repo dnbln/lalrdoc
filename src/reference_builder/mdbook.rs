@@ -28,8 +28,10 @@ impl Display for PrecedenceData {
                 self.level,
                 self.assoc.as_deref().unwrap_or("default")
             )
-        } else {
+        } else if self.level >= 1 {
             write!(f, "(precedence level = {})", self.level)
+        } else {
+            write!(f, "")
         }
     }
 }
