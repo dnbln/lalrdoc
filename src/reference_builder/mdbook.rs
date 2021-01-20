@@ -1,9 +1,12 @@
-use grammar::parse_tree::{Alternative, Annotation, Grammar, SymbolKind};
-use itertools::Itertools;
-use reference_builder::{LalrdocError, ReferenceBuilder};
+use std::fmt::{self, Display};
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
+
+use itertools::Itertools;
+
+use grammar::parse_tree::{Alternative, Grammar, SymbolKind};
+use reference_builder::{LalrdocError, ReferenceBuilder};
 
 pub struct MdbookReferenceBuilder {
     pub output: PathBuf,
@@ -14,6 +17,21 @@ pub struct MdbookReferenceBuilder {
 struct PrecedenceData {
     level: usize,
     assoc: Option<String>,
+}
+
+impl Display for PrecedenceData {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if self.level >= 2 {
+            write!(
+                f,
+                "(precedence level = {}, associativity = {})",
+                self.level,
+                self.assoc.as_deref().unwrap_or("default")
+            )
+        } else {
+            write!(f, "(precedence level = {})", self.level)
+        }
+    }
 }
 
 fn get_precedence_data(alt: &Alternative) -> Option<PrecedenceData> {
@@ -75,17 +93,7 @@ impl ReferenceBuilder for MdbookReferenceBuilder {
                         );
 
                         let precedence_data = get_precedence_data(alt)
-                            .map(|it| {
-                                if it.level >= 2 {
-                                    format!(
-                                        "(precedence level = {}, associativity = {})",
-                                        it.level,
-                                        it.assoc.unwrap_or_else(|| "default".to_string())
-                                    )
-                                } else {
-                                    format!("(precedence level = {})", it.level)
-                                }
-                            })
+                            .map(|it| it.to_string())
                             .unwrap_or_default();
 
                         let alternative_doc_comments = if !alt.doc_comments.is_empty() {
