@@ -6,6 +6,7 @@ use std::path::PathBuf;
 use itertools::Itertools;
 
 use grammar::parse_tree::{Alternative, Grammar, SymbolKind};
+use reference_builder::ref_render::RefRender;
 use reference_builder::{LalrdocError, ReferenceBuilder};
 
 pub struct MdbookReferenceBuilder {
@@ -62,18 +63,26 @@ impl ReferenceBuilder for MdbookReferenceBuilder {
             .items
             .iter()
             .filter_map(|it| it.as_nonterminal())
-            .try_for_each(|it| -> Result<(), LalrdocError> {
+            .try_for_each(|nonterminal_data| -> Result<(), LalrdocError> {
                 let (name, args) = (
-                    it.name.to_string(),
-                    it.args.iter().map(|arg| arg.to_string()).collect_vec(),
+                    nonterminal_data.name.to_string(),
+                    nonterminal_data
+                        .args
+                        .iter()
+                        .map(|arg| arg.to_string())
+                        .collect_vec(),
                 );
                 nonterminal_names.push(name.clone());
-                let doc_comments = it.doc_comments.iter().map(|it| &it[3..it.len()]).join("\n");
+                let doc_comments = nonterminal_data
+                    .doc_comments
+                    .iter()
+                    .map(|it| &it[3..it.len()])
+                    .join("\n");
 
                 let mut f = File::create(self.output.join(format!("{}.md", name)))?;
 
-                let alternatives_count = it.alternatives.len();
-                let alternatives = it
+                let alternatives_count = nonterminal_data.alternatives.len();
+                let alternatives = nonterminal_data
                     .alternatives
                     .iter()
                     .enumerate()
@@ -85,14 +94,14 @@ impl ReferenceBuilder for MdbookReferenceBuilder {
                             "".to_string()
                         };
 
-                        let symbols = format!(
-                            "`{}`",
-                            &alt.expr
-                                .symbols
-                                .iter()
-                                .map(|it| format!("{}", it))
-                                .join(" ")
-                        );
+                        let symbols = alt
+                            .expr
+                            .symbols
+                            .iter()
+                            .filter_map(|it| {
+                                it.render(nonterminal_data, &self.grammar).try_display()
+                            })
+                            .join(" ");
 
                         let precedence_data = get_precedence_data(alt)
                             .map(|it| it.to_string())
@@ -120,10 +129,13 @@ impl ReferenceBuilder for MdbookReferenceBuilder {
                     "".to_string()
                 };
 
+                // TODO: add docs on nonterminal params
+                let params_data = args.iter().map(|it| format!("## {}", it)).join("\n");
+
                 write!(
                     &mut f,
-                    "# {}{}\n{}\n{}",
-                    name, args_str, alternatives, doc_comments
+                    "# {}{}\n{}\n{}\n{}",
+                    name, args_str, params_data, alternatives, doc_comments
                 )?;
 
                 Ok(())

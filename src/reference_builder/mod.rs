@@ -1,4 +1,5 @@
 pub mod mdbook;
+pub mod ref_render;
 
 #[derive(Error, Debug)]
 pub enum LalrdocError {
