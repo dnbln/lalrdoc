@@ -88,9 +88,21 @@ impl ReferenceBuilder for MdbookReferenceBuilder {
                             })
                             .unwrap_or_default();
 
-                        format!("> {}{}{}", ind, symbols, precedence_data)
+                        let alternative_doc_comments = if !alt.doc_comments.is_empty() {
+                            alt.doc_comments
+                                .iter()
+                                .map(|it| &it[3..it.len()])
+                                .join("\n")
+                        } else {
+                            "".to_string()
+                        };
+
+                        format!(
+                            "> {}{}{}\n{}\n",
+                            ind, symbols, precedence_data, alternative_doc_comments
+                        )
                     })
-                    .join("\n>\n");
+                    .join("\n");
 
                 let args_str = if !args.is_empty() {
                     format!("<{}>", args.join(", "))
