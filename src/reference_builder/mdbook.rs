@@ -1,4 +1,4 @@
-use grammar::parse_tree::{Grammar, SymbolKind};
+use grammar::parse_tree::{Alternative, Annotation, Grammar, SymbolKind};
 use itertools::Itertools;
 use reference_builder::{LalrdocError, ReferenceBuilder};
 use std::fs::File;
@@ -8,6 +8,31 @@ use std::path::PathBuf;
 pub struct MdbookReferenceBuilder {
     pub output: PathBuf,
     pub grammar: Grammar,
+}
+
+#[derive(Default, Debug)]
+struct PrecedenceData {
+    level: usize,
+    assoc: Option<String>,
+}
+
+fn get_precedence_data(alt: &Alternative) -> Option<PrecedenceData> {
+    let precedence = alt
+        .annotations
+        .iter()
+        .find(|it| it.id.to_string() == "precedence")
+        .and_then(|it| it.arg.as_ref().map(|arg| arg.1.clone()))?;
+
+    let level = precedence.parse().ok().unwrap_or(0_usize);
+
+    let assoc = alt
+        .annotations
+        .iter()
+        .find(|it| it.id.to_string() == "assoc")
+        .filter(|_| level >= 2)
+        .and_then(|it| it.arg.as_ref().map(|arg| arg.1.clone()));
+
+    Some(PrecedenceData { level, assoc })
 }
 
 impl ReferenceBuilder for MdbookReferenceBuilder {
@@ -40,8 +65,30 @@ impl ReferenceBuilder for MdbookReferenceBuilder {
                             "".to_string()
                         };
 
-                        let symbols = format!("`{}`", &alt.expr);
-                        format!("> {}{}", ind, symbols)
+                        let symbols = format!(
+                            "`{}`",
+                            &alt.expr
+                                .symbols
+                                .iter()
+                                .map(|it| format!("{}", it))
+                                .join(" ")
+                        );
+
+                        let precedence_data = get_precedence_data(alt)
+                            .map(|it| {
+                                if it.level >= 2 {
+                                    format!(
+                                        "(precedence level = {}, associativity = {})",
+                                        it.level,
+                                        it.assoc.unwrap_or_else(|| "default".to_string())
+                                    )
+                                } else {
+                                    format!("(precedence level = {})", it.level)
+                                }
+                            })
+                            .unwrap_or_default();
+
+                        format!("> {}{}{}", ind, symbols, precedence_data)
                     })
                     .join("\n>\n");
 
