@@ -1,4 +1,4 @@
-use grammar::parse_tree::{Grammar, NonterminalData, Symbol, SymbolKind};
+use grammar::parse_tree::{Grammar, NonterminalData, RepeatOp, Symbol, SymbolKind};
 
 pub enum RefRendered {
     SomeRendered { rendered: String },
@@ -82,7 +82,17 @@ impl RefRender for Symbol {
                 .symbol
                 .render(nonterminal_parent, grammar)
                 .try_display()
-                .map(|it| format!("{}{}", it, repeat.op.to_string()))
+                .map(|it| {
+                    format!(
+                        "{}{}",
+                        it,
+                        match repeat.op {
+                            RepeatOp::Star => "*",
+                            RepeatOp::Plus => "<sub>+</sub>",
+                            RepeatOp::Question => "<sub>?</sub>",
+                        }
+                    )
+                })
                 .map(|it| SomeRendered { rendered: it })
                 .unwrap_or(NoneRendered),
             SymbolKind::Choose(sym) => sym.render(nonterminal_parent, grammar),

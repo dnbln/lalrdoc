@@ -124,7 +124,7 @@ impl ReferenceBuilder for MdbookReferenceBuilder {
                     .join("\n");
 
                 let args_str = if !args.is_empty() {
-                    format!("<{}>", args.join(", "))
+                    format!("&lt;{}&gt;", args.join(", "))
                 } else {
                     "".to_string()
                 };
